@@ -18,6 +18,7 @@ if __name__ == '__main__':
         print('(',task['offset'],',',task['period'],',',task['wcet'],',',task['deadline'],',',task['sections'],')')
 
     # print(type(taskset[0]))
+    finished =[]
     ongoingTasks = {}
     for current_time in range(startTime,endTime+1):
         for task in taskset:
@@ -29,10 +30,11 @@ if __name__ == '__main__':
             newTime = current_time - periodNum * task['period'] - task['offset']
             if not(periodNum in ongoingTasks[task['taskId']-1]):
                 if newTime>= 0 and newTime<task['deadline']:
-                    print('created',task['taskId'],periodNum,current_time)
-                    # ongoingTasks[task['taskId']-1] = {}
-                    ongoingTasks[task['taskId']-1][periodNum] = {}
-                    ongoingTasks[task['taskId']-1][periodNum]['remaining'] = task['wcet']
+                    if not([task['taskId']-1,periodNum] in finished):
+                        print('created',task['taskId'],periodNum,current_time)
+                        # ongoingTasks[task['taskId']-1] = {}
+                        ongoingTasks[task['taskId']-1][periodNum] = {}
+                        ongoingTasks[task['taskId']-1][periodNum]['remaining'] = task['wcet']
         deletingTasks = []
         for task,val in ongoingTasks.items():
             for per,dic in val.items():
@@ -50,6 +52,9 @@ if __name__ == '__main__':
         for (task,per) in deletingTasks:
             # print(task,per,deletingTasks)
             ongoingTasks[task].pop(per)
+            finished.append([task,per])
+        
+        # print(finished,'fiiiin')
             
 
         rmList = []
@@ -60,7 +65,11 @@ if __name__ == '__main__':
             bestchoice = sorted(rmList ,key=lambda x: x[2])[0]
 
             ongoingTasks[bestchoice[0]][bestchoice[1]]['remaining'] -=1
-            # print()
+            print('time:',current_time,'task:',bestchoice[0]+1)
+        else:
+            print('time:',current_time,'CPU is free :)')
+
+            
             
     
     
