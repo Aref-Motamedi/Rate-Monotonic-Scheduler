@@ -16,6 +16,13 @@
             "deadline":17,
             "offset":0,
             "sections":[[1,2],[3,2]]
+        },{
+            "taskId":3,
+            "period":10,
+            "wcet":6,
+            "deadline":12,
+            "offset":0,
+            "sections":[[2,4],[3,2]]
         }
     ]
 }
