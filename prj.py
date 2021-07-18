@@ -20,6 +20,7 @@ if __name__ == '__main__':
     # print(type(taskset[0]))
     finished =[]
     ongoingTasks = {}
+    semaphorInUse = []
     for current_time in range(startTime,endTime+1):
         for task in taskset:
             if not(task['taskId']-1 in ongoingTasks):
@@ -55,19 +56,48 @@ if __name__ == '__main__':
             finished.append([task,per])
         
         # print(finished,'fiiiin')
+        
+        if semaphorInUse == []:
             
+            rmList = []
+            for task, dic1 in ongoingTasks.items():
+                for per,dic2 in dic1.items():
+                    rmList.append((task,per,taskset[task]['period']))
+            if len(rmList)>0:
+                bestchoice = sorted(rmList ,key=lambda x: x[2])[0]
+                ith_time = taskset[bestchoice[0]]['wcet'] - ongoingTasks[bestchoice[0]][bestchoice[1]]['remaining']
+                
+                # if (ongoingTasks[bestchoice[0]][bestchoice[1]]['remaining'] == taskset[bestchoice[0]]['wcet']):
+                if (ith_time ==0):
+                    ongoingTasks[bestchoice[0]][bestchoice[1]]['section'] = taskset[bestchoice[0]]['sections'][0]
+                    semaphorInUse= [taskset[bestchoice[0]]['sections'][0][1],bestchoice[0],bestchoice[1],taskset[bestchoice[0]]['sections'][0][0]]
+                else:
+                    # print(ith_time)
+                    counter = 0
+                    # flag = False
+                    for sec in taskset[bestchoice[0]]['sections']:
+                        if ith_time == counter:
+                            semaphorInUse= [sec[1],bestchoice[0],bestchoice[1],sec[0]]
+                            break
+                        else:
+                            counter += sec[1]
+                    # print(semaphorInUse)
 
-        rmList = []
-        for task, dic1 in ongoingTasks.items():
-            for per,dic2 in dic1.items():
-                rmList.append((task,per,taskset[task]['period']))
-        if len(rmList)>0:
-            bestchoice = sorted(rmList ,key=lambda x: x[2])[0]
-
-            ongoingTasks[bestchoice[0]][bestchoice[1]]['remaining'] -=1
-            print('time:',current_time,'task:',bestchoice[0]+1)
+                ongoingTasks[bestchoice[0]][bestchoice[1]]['remaining'] -=1
+                print('time:',current_time,'task:',bestchoice[0]+1,'semaphore:',semaphorInUse[3])
+                semaphorInUse[0] -=1
+                if semaphorInUse[0] <=0:
+                    semaphorInUse = []
+            else:
+                print('time:',current_time,'CPU is free :)')
+            
         else:
-            print('time:',current_time,'CPU is free :)')
+            ongoingTasks[semaphorInUse[1]][semaphorInUse[2]]['remaining'] -=1
+            print('time:',current_time,'task:',semaphorInUse[1]+1,'semaphore:',semaphorInUse[3])
+            semaphorInUse[0] -=1
+            if semaphorInUse[0] <=0:
+                semaphorInUse = []
+
 
             
             
